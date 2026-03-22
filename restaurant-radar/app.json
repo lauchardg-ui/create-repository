@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "restaurant-radar",
+    "name": "Restaurant Radar",
     "slug": "restaurant-radar",
+    "owner": "restaurant-radar",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,7 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.restaurantradar.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Restaurant Radar needs your location to find nearby restaurants and suggest new openings in your area."
+      }
     },
     "android": {
       "adaptiveIcon": {
