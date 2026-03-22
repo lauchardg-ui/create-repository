@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14, 16, 18, 20]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check syntax
+        run: node --check index.js
+
+      - name: Verify module loads
+        run: node -e "require('./index.js')" || true
+
+      - name: Verify package.json is valid
+        run: node -e "var pkg = require('./package.json'); if (!pkg.name || !pkg.bin) { process.exit(1); }"

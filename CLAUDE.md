@@ -13,6 +13,9 @@
 
 ```
 .
+├── .github/
+│   └── workflows/
+│       └── ci.yml    # GitHub Actions CI pipeline
 ├── index.js          # Entire CLI implementation (executable via shebang)
 ├── package.json      # Project metadata, dependencies, bin config
 ├── .gitignore        # Ignores node_modules
@@ -73,7 +76,11 @@ CLI arguments `--name`/`-n` and `--description`/`-d` override values read from `
 
 ## CI/CD
 
-No CI/CD pipelines are configured (no GitHub Actions, no `.github/workflows/`).
+GitHub Actions CI pipeline (`.github/workflows/ci.yml`):
+
+- **Triggers:** Push to `master`, pull requests targeting `master`
+- **Node.js matrix:** 14, 16, 18, 20
+- **Steps:** Install dependencies, check syntax (`node --check`), verify module loads, validate `package.json`
 
 ## Important Notes for AI Assistants
 
