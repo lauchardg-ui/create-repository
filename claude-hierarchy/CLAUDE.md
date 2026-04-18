@@ -32,9 +32,8 @@
 
 ## Imports
 
-<!-- Uncomment as Layer 2 files are populated. -->
-<!-- @~/.claude/lib/principles/keeping-it-simple.md -->
-<!-- @~/.claude/lib/principles/making-it-work.md -->
-<!-- @~/.claude/lib/principles/privacy-and-data.md -->
-<!-- @~/.claude/lib/principles/learning-as-we-go.md -->
-<!-- @~/.claude/lib/workflows/new-feature.md -->
+@~/.claude/lib/principles/keeping-it-simple.md
+@~/.claude/lib/principles/making-it-work.md
+@~/.claude/lib/principles/privacy-and-data.md
+@~/.claude/lib/principles/learning-as-we-go.md
+@~/.claude/lib/workflows/new-feature.md
