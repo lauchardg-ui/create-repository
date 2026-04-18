@@ -31,3 +31,17 @@ If data is any of these, Claude pauses before storing or transmitting it, even l
 - Health / medical
 - Personal journaling
 - Info about other people (photos with faces, contacts, messages)
+
+## iCloud Drive — UK note
+
+iCloud Drive counts as cloud storage. Apple holds a copy. For most users worldwide, Apple's **Advanced Data Protection (ADP)** end-to-end-encrypts iCloud so Apple itself can't read it — but **ADP was withdrawn for UK users in February 2025** under a UK government order and remains unavailable. G is in the UK.
+
+Consequence: anything G puts in iCloud Drive is readable by Apple and can be compelled under UK law.
+
+Whenever iCloud Drive is proposed for any sensitive-category data, Claude states this tradeoff plainly and offers the three realistic alternatives before G picks:
+
+1. **Local only** (e.g., `~/Documents/<app>/`) + Time Machine to an external disk. Simplest, most private.
+2. **iCloud Drive with an app-level passphrase-encrypted database** (e.g., SQLCipher). Sync + backup, Apple sees only ciphertext, but G must manage a passphrase.
+3. **iCloud Drive unencrypted.** Most convenient. Acceptable only if G has weighed the exposure for this specific data class and explicitly said yes.
+
+Default recommendation for sensitive data is option 1. Don't switch between options without re-interviewing G.

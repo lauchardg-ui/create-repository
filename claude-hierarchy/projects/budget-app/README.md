@@ -6,24 +6,27 @@ Personal finance dashboard for G. Imports Amex + HSBC UK statements, categorizes
 
 ---
 
+## Storage — the tradeoff you accepted
+
+Your `budget.db` file lives in iCloud Drive, **unencrypted**. You chose this consciously:
+
+- Apple's Advanced Data Protection (end-to-end encryption for iCloud) is unavailable to UK users since February 2025.
+- So Apple holds a readable copy of your spending history, and can be compelled under UK law to hand it over.
+- You weighed that against the convenience of iCloud sync/backup and picked iCloud. Noted and respected.
+
+If you want to revisit this (local-only, or passphrase-encrypted in iCloud), tell Claude and we re-interview. Don't silently change it.
+
+---
+
 ## One-time setup (you do these in order, once)
 
-### 1. Turn on iCloud Advanced Data Protection (ADP)
-
-This is what keeps your bank history private on Apple's servers. The app refuses to run without it.
-
-- Open **System Settings → Apple ID → iCloud → Advanced Data Protection → Turn On**.
-- You'll be asked to set a **recovery contact** or **recovery key**. Do it. Write the recovery key down and store it somewhere safe (*not* on your Mac).
-- Why it matters: with ADP on, Apple cannot read your iCloud data. Without ADP, Apple holds readable copies and can be compelled to hand them over.
-- **Important consequence:** if you lose all your Apple devices *and* your recovery contact/key, you lose the data. ADP puts you fully in charge.
-
-### 2. Install Python 3.11 or later
+### 1. Install Python 3.11 or later
 
 - Download the macOS installer from https://www.python.org/downloads/macos/
 - Run the installer. Default options are fine.
 - Open **Terminal.app**. Type `python3 --version`. You should see something like `Python 3.11.x` or higher. If not, tell Claude.
 
-### 3. Export 3–6 months of statements (sample first)
+### 2. Export 3–6 months of statements (sample first)
 
 Before Claude writes the ingest code, send it a **sample of one recent month** from each account so it can see the actual column names:
 
@@ -34,7 +37,7 @@ Put both files in `~/budget-app/statements/`. Claude reads these *before* writin
 
 Once the ingest code is working, export the rest (3–6 months total) and drop them in the same folder.
 
-### 4. One-time project setup
+### 3. One-time project setup
 
 Claude will ask for your approval before each of these. **Say yes when it asks:**
 
@@ -90,7 +93,7 @@ Claude will diagnose before changing anything.
 - No tax prep or HMRC categorization.
 - No retirement or investment views (those are future modules).
 - No specific trade or product recommendations ever.
-- No network calls — the app never sends your data anywhere.
+- No outbound network calls from the app. (The DB does live in iCloud Drive — see the "Storage" section above — but the app itself never phones home.)
 
 ---
 

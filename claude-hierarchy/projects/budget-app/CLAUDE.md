@@ -33,7 +33,7 @@ statements/*.csv  ──► ingest.py  ──► uniform transaction schema
 ```
 
 **Stack:** Python 3.11+, Streamlit, pandas, SQLite (stdlib), PyYAML.
-**Data at rest:** `~/Library/Mobile Documents/com~apple~CloudDocs/budget/budget.db`. iCloud **Advanced Data Protection is REQUIRED** — the app refuses to launch if it detects ADP is not enabled on the iCloud account.
+**Data at rest:** `~/Library/Mobile Documents/com~apple~CloudDocs/budget/budget.db` (iCloud Drive, **unencrypted**). G explicitly chose this tradeoff after being told ADP is unavailable in the UK, which means Apple holds readable copies and can be compelled under UK law to hand them over. Do **not** switch this to local-only or passphrase-encrypted without re-interviewing G — this was an informed decision, not a default.
 
 ## Project-specific conventions
 
@@ -41,7 +41,7 @@ statements/*.csv  ──► ingest.py  ──► uniform transaction schema
 - **Ingestion is idempotent** — re-importing a statement must be safe. Track by content hash.
 - **Categorization is rule-based only.** No ML, no LLM calls anywhere in the categorization path. G's overrides (in `rules/overrides.yaml`) always win.
 - **Anomaly detection is deterministic.** Three signals: single-transaction outlier (>2× 90th percentile of that category's trailing history), new merchant (never seen before in any month), category spike (monthly total >150% of trailing 3-month median). If fewer than 3 months of data exist, category-spike check returns no signals rather than guessing.
-- **No network calls** from the app. Nothing leaves the machine.
+- **No outbound network calls** from the app itself. The DB does sit in iCloud Drive (see above) but nothing else leaves the machine — no telemetry, no LLM calls, no API lookups.
 - First run will produce many wrong categorizations — that's expected. G corrects them, and the overrides apply retroactively.
 
 ## Roadmap — DO NOT BUILD YET

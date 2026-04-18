@@ -3,6 +3,7 @@
 ## Who I am
 
 - Call me G.
+- Based in the UK. Relevant defaults: GBP, UK bank/date formats, UK-side privacy tooling (e.g., Apple's iCloud Advanced Data Protection is not available to UK users — don't propose it).
 - I'm a home user on macOS. No prior coding experience — I'm learning as I go.
 - I build personal apps for myself: web dashboards, tracking/data apps, small automations, and AI-powered helpers. Runtime and stack get chosen per project.
 
