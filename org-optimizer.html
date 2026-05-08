@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tech Org Resource Optimizer</title>
+<style>
+  :root {
+    --bg: #0c0f14;
+    --panel: #141923;
+    --panel-2: #1b2230;
+    --border: #232c3d;
+    --text: #e6ebf2;
+    --muted: #8b95a8;
+    --accent: #6aa9ff;
+    --good: #4ade80;
+    --warn: #fbbf24;
+    --bad: #f87171;
+    --traditional: #f87171;
+    --bestinclass: #fbbf24;
+    --claude: #4ade80;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.45;
+  }
+  header {
+    padding: 28px 32px 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #10141c 0%, #0c0f14 100%);
+  }
+  header h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    max-width: 900px;
+  }
+  main {
+    padding: 24px 32px 64px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  .control label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .control input[type="number"] {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .control input:focus { outline: 1px solid var(--accent); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-head .tag {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .tag.t { background: rgba(248,113,113,0.15); color: var(--traditional); }
+  .tag.b { background: rgba(251,191,36,0.15); color: var(--bestinclass); }
+  .tag.c { background: rgba(74,222,128,0.15); color: var(--claude); }
+  .card-head h2 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .card-head .sub {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+  .kpi {
+    padding: 12px 14px;
+    background: var(--panel);
+  }
+  .kpi .v {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .kpi .l {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+  .breakdown {
+    padding: 14px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .breakdown h3 {
+    margin: 0 0 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 12.5px;
+    align-items: center;
+  }
+  .row .name { color: var(--text); }
+  .row .count { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; min-width: 50px; }
+  .row .cost { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; min-width: 70px; }
+  .row.tot {
+    border-top: 1px solid var(--border);
+    margin-top: 6px;
+    padding-top: 8px;
+    font-weight: 600;
+  }
+  .row.tot .count, .row.tot .cost { color: var(--text); }
+  .pyramid {
+    padding: 14px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .pyramid h3 {
+    margin: 0 0 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .pbar {
+    height: 22px;
+    border-radius: 4px;
+    margin: 3px 0;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 11px;
+    color: #0c0f14;
+    font-weight: 600;
+    background: var(--accent);
+  }
+  .panel-section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+  }
+  .panel-section h2 {
+    margin: 0 0 14px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .compare-bars {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 6px 14px;
+    align-items: center;
+    font-size: 12.5px;
+  }
+  .bar-track {
+    background: var(--panel-2);
+    border-radius: 4px;
+    height: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #0c0f14;
+    white-space: nowrap;
+    transition: width 0.25s ease;
+  }
+  .bar-fill.t { background: var(--traditional); }
+  .bar-fill.b { background: var(--bestinclass); }
+  .bar-fill.c { background: var(--claude); }
+  .compare-label { color: var(--muted); }
+  .insights ul { margin: 0; padding-left: 18px; }
+  .insights li { margin: 4px 0; font-size: 13px; color: var(--text); }
+  .insights li b { color: var(--accent); }
+  details { margin-top: 8px; }
+  details summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 6px 0;
+  }
+  details summary:hover { color: var(--text); }
+  .assumption-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 8px;
+  }
+  @media (max-width: 1100px) { .assumption-grid { grid-template-columns: 1fr; } }
+  .assumption-col {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .assumption-col h4 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .assumption-col h4.t { color: var(--traditional); }
+  .assumption-col h4.b { color: var(--bestinclass); }
+  .assumption-col h4.c { color: var(--claude); }
+  .arow {
+    display: grid;
+    grid-template-columns: 1fr 70px;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+  .arow input {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .arow input:focus { outline: 1px solid var(--accent); }
+  .arow .lbl { color: var(--muted); }
+  footer {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+    padding: 24px 0 0;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tech Org Resource Optimization Model</h1>
+  <p>Compare a traditional enterprise tech org structure against a best-in-class one (Amazon/Anthropic style two-pizza teams), then project the structural shift from extensive Claude usage. All numbers are editable assumptions — adjust them to match your context.</p>
+</header>
+
+<main>
+  <div class="controls">
+    <div class="control">
+      <label>Engineering ICs (target capacity)</label>
+      <input type="number" id="ic-base" value="1000" min="10" max="50000" step="10">
+    </div>
+    <div class="control">
+      <label>Avg loaded salary — IC engineer ($)</label>
+      <input type="number" id="sal-ic" value="280000" min="50000" max="1000000" step="5000">
+    </div>
+    <div class="control">
+      <label>Avg loaded salary — manager ($)</label>
+      <input type="number" id="sal-mgr" value="420000" min="100000" max="1500000" step="5000">
+    </div>
+    <div class="control">
+      <label>Avg loaded salary — exec (Dir+) ($)</label>
+      <input type="number" id="sal-exec" value="700000" min="200000" max="3000000" step="10000">
+    </div>
+    <div class="control">
+      <label>Productive hours / FTE / year</label>
+      <input type="number" id="hours" value="1800" min="500" max="3000" step="50">
+    </div>
+    <div class="control">
+      <label>Claude productivity multiplier (×)</label>
+      <input type="number" id="claude-mult" value="2.5" min="1" max="5" step="0.1">
+    </div>
+  </div>
+
+  <div class="grid" id="cards"></div>
+
+  <div class="panel-section">
+    <h2>Side-by-side comparison</h2>
+    <div id="compare"></div>
+  </div>
+
+  <div class="panel-section insights">
+    <h2>What changes &amp; why</h2>
+    <ul id="insights"></ul>
+  </div>
+
+  <div class="panel-section">
+    <h2>Editable assumptions</h2>
+    <p style="color:var(--muted);font-size:12.5px;margin:0 0 8px;">
+      Ratios are <em>engineers per role</em> (e.g. 7 = one for every 7 engineers). 0 = role removed. Productive time = % of paid hours actually spent producing. Productivity factor scales output (tooling, autonomy, AI). Process tax = % of gross output lost to handoffs, rework, coordination friction.
+    </p>
+    <div class="assumption-grid" id="assumptions"></div>
+  </div>
+
+  <footer>Model is illustrative — calibrate ratios to your industry and stage. Salary defaults reflect US tech total comp.</footer>
+</main>
+
+<script>
+// ============================================================
+// Org archetypes
+// Each role's ratio = "1 of this role per N engineering ICs".
+// 0 = role does not exist in this archetype.
+// ============================================================
+
+const ROLES = [
+  { key: "ic_jr",   label: "IC engineers (junior)",   tier: "ic",   share: 0.30 },
+  { key: "ic_mid",  label: "IC engineers (mid)",      tier: "ic",   share: 0.40 },
+  { key: "ic_sr",   label: "IC engineers (senior)",   tier: "ic",   share: 0.25 },
+  { key: "ic_staff",label: "IC engineers (staff+)",   tier: "ic",   share: 0.05 },
+  { key: "qa",      label: "QA engineers",            tier: "ic" },
+  { key: "designer",label: "Designers",               tier: "ic" },
+  { key: "data",    label: "Data analysts",           tier: "ic" },
+  { key: "sre",     label: "DevOps / SRE",            tier: "ic" },
+  { key: "pm",      label: "Product managers",        tier: "ic" },
+  { key: "tpm",     label: "Technical PMs",           tier: "ic" },
+  { key: "scrum",   label: "Scrum masters / coaches", tier: "ic" },
+  { key: "em",      label: "Engineering managers",    tier: "mgr" },
+  { key: "srmgr",   label: "Senior managers",         tier: "mgr" },
+  { key: "dir",     label: "Directors",               tier: "exec" },
+  { key: "vp",      label: "VPs",                     tier: "exec" },
+];
+
+// Ratio definitions: "engineers per 1 of this role"
+const ARCHETYPES = {
+  traditional: {
+    name: "Traditional enterprise org",
+    sub: "Layered hierarchy, dedicated QA, heavy process",
+    tag: "t",
+    ratios: { qa: 3, designer: 10, data: 33, sre: 12, pm: 5, tpm: 20, scrum: 8,
+              em: 7, srmgr: 28, dir: 112, vp: 448 },
+    productiveTime: 0.50,
+    productivityFactor: 1.0,
+    processTax: 0.25,
+  },
+  bestinclass: {
+    name: "Best-in-class (Amazon / Anthropic)",
+    sub: "Two-pizza teams, autonomous, engineers own quality",
+    tag: "b",
+    ratios: { qa: 0, designer: 20, data: 50, sre: 15, pm: 10, tpm: 30, scrum: 0,
+              em: 10, srmgr: 0, dir: 60, vp: 300 },
+    productiveTime: 0.70,
+    productivityFactor: 1.3,
+    processTax: 0.10,
+  },
+  claude: {
+    name: "Claude-augmented org",
+    sub: "AI does the toil; smaller teams, higher leverage",
+    tag: "c",
+    ratios: { qa: 0, designer: 30, data: 80, sre: 25, pm: 20, tpm: 50, scrum: 0,
+              em: 14, srmgr: 0, dir: 84, vp: 420 },
+    productiveTime: 0.80,
+    productivityFactor: 2.5,
+    processTax: 0.05,
+    icScaling: 0.70, // Claude orgs need fewer ICs for the same output
+  },
+};
+
+const TIER_LABELS = {
+  ic: ["ic_jr","ic_mid","ic_sr","ic_staff","qa","designer","data","sre","pm","tpm","scrum"],
+  mgr: ["em","srmgr"],
+  exec: ["dir","vp"],
+};
+
+// ============================================================
+// Compute one archetype
+// ============================================================
+function compute(arch, params) {
+  const baseICs = params.icBase * (arch.icScaling ?? 1);
+  const counts = {};
+
+  // IC engineering split
+  counts.ic_jr    = Math.round(baseICs * 0.30);
+  counts.ic_mid   = Math.round(baseICs * 0.40);
+  counts.ic_sr    = Math.round(baseICs * 0.25);
+  counts.ic_staff = Math.round(baseICs * 0.05);
+  const engICs = counts.ic_jr + counts.ic_mid + counts.ic_sr + counts.ic_staff;
+
+  // Other roles derived from ratios
+  for (const k of ["qa","designer","data","sre","pm","tpm","scrum","em","srmgr","dir","vp"]) {
+    const r = arch.ratios[k];
+    counts[k] = r > 0 ? Math.max(1, Math.round(engICs / r)) : 0;
+  }
+  // Fix: VP/director rounding can be ugly for small orgs
+  if (counts.vp === 0 && arch.ratios.vp > 0) counts.vp = 1;
+
+  // Cost per role
+  const cost = {};
+  for (const role of ROLES) {
+    let salary;
+    if (role.tier === "ic") salary = params.salIC;
+    else if (role.tier === "mgr") salary = params.salMgr;
+    else salary = params.salExec;
+    // Bump for senior ICs
+    if (role.key === "ic_sr") salary = params.salIC * 1.4;
+    if (role.key === "ic_staff") salary = params.salIC * 2.0;
+    if (role.key === "ic_jr") salary = params.salIC * 0.6;
+    if (role.key === "srmgr") salary = params.salMgr * 1.25;
+    cost[role.key] = (counts[role.key] || 0) * salary;
+  }
+
+  const totalHeadcount = Object.values(counts).reduce((a,b)=>a+b,0);
+  const totalCost = Object.values(cost).reduce((a,b)=>a+b,0);
+
+  // Effective output:
+  //   gross = engICs * hours * productiveTime * productivityFactor
+  //   net   = gross * (1 - processTax)
+  const grossOutput = engICs * params.hours * arch.productiveTime * arch.productivityFactor;
+  const netOutput = grossOutput * (1 - arch.processTax);
+  const costPerOutput = totalCost / netOutput;
+
+  // Coordination overhead (shorthand: 1 - productiveTime + processTax)
+  const coordinationOverhead = (1 - arch.productiveTime) + arch.processTax;
+
+  return { arch, counts, cost, totalHeadcount, totalCost,
+           grossOutput, netOutput, costPerOutput, coordinationOverhead, engICs };
+}
+
+// ============================================================
+// Formatters
+// ============================================================
+const fmtN  = n => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+const fmt$  = n => "$" + (n >= 1e9
+  ? (n/1e9).toFixed(2) + "B"
+  : n >= 1e6 ? (n/1e6).toFixed(1) + "M"
+  : n >= 1e3 ? (n/1e3).toFixed(0) + "K" : n.toFixed(0));
+const fmtPct = n => (n*100).toFixed(0) + "%";
+
+// ============================================================
+// Render
+// ============================================================
+function render() {
+  const params = {
+    icBase: +document.getElementById("ic-base").value,
+    salIC:  +document.getElementById("sal-ic").value,
+    salMgr: +document.getElementById("sal-mgr").value,
+    salExec:+document.getElementById("sal-exec").value,
+    hours:  +document.getElementById("hours").value,
+  };
+  const claudeMult = +document.getElementById("claude-mult").value;
+  ARCHETYPES.claude.productivityFactor = claudeMult;
+
+  const results = {
+    traditional: compute(ARCHETYPES.traditional, params),
+    bestinclass: compute(ARCHETYPES.bestinclass, params),
+    claude:      compute(ARCHETYPES.claude, params),
+  };
+
+  // Cards
+  const cards = document.getElementById("cards");
+  cards.innerHTML = "";
+  for (const k of ["traditional","bestinclass","claude"]) {
+    cards.appendChild(renderCard(results[k], k));
+  }
+
+  // Comparison bars
+  document.getElementById("compare").innerHTML = renderCompare(results);
+
+  // Insights
+  document.getElementById("insights").innerHTML = renderInsights(results);
+
+  // Assumption editors (built once)
+  if (!document.getElementById("assumptions").children.length) {
+    renderAssumptions();
+  }
+}
+
+function renderCard(r, key) {
+  const a = r.arch;
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="card-head">
+      <span class="tag ${a.tag}">${key === "traditional" ? "TRADITIONAL" : key === "bestinclass" ? "BEST-IN-CLASS" : "CLAUDE-AUGMENTED"}</span>
+      <h2>${a.name}</h2>
+      <div class="sub">${a.sub}</div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="v">${fmtN(r.totalHeadcount)}</div><div class="l">Total headcount</div></div>
+      <div class="kpi"><div class="v">${fmt$(r.totalCost)}</div><div class="l">Annual cost</div></div>
+      <div class="kpi"><div class="v">${fmtN(r.netOutput/1000)}k</div><div class="l">Effective output (h)</div></div>
+      <div class="kpi"><div class="v">$${r.costPerOutput.toFixed(0)}</div><div class="l">Cost / output hour</div></div>
+    </div>
+    <div class="breakdown">
+      <h3>Headcount by role</h3>
+      ${ROLES.filter(r2 => r.counts[r2.key] > 0).map(role => `
+        <div class="row">
+          <div class="name">${role.label}</div>
+          <div class="count">${fmtN(r.counts[role.key])}</div>
+          <div class="cost">${fmt$(r.cost[role.key])}</div>
+        </div>`).join("")}
+      <div class="row tot">
+        <div class="name">Total</div>
+        <div class="count">${fmtN(r.totalHeadcount)}</div>
+        <div class="cost">${fmt$(r.totalCost)}</div>
+      </div>
+    </div>
+    <div class="pyramid">
+      <h3>Org shape (by tier)</h3>
+      ${renderPyramid(r)}
+    </div>
+  `;
+  return card;
+}
+
+function renderPyramid(r) {
+  const tiers = [
+    { label: "Executives (Dir+VP)", keys: ["dir","vp"], color: "#7c3aed" },
+    { label: "Managers", keys: ["em","srmgr"], color: "#3b82f6" },
+    { label: "Non-engineering ICs", keys: ["pm","tpm","scrum","designer","data","qa"], color: "#06b6d4" },
+    { label: "Engineering ICs", keys: ["ic_jr","ic_mid","ic_sr","ic_staff","sre"], color: "#10b981" },
+  ];
+  const counts = tiers.map(t => ({
+    ...t,
+    n: t.keys.reduce((s,k) => s + (r.counts[k] || 0), 0)
+  }));
+  const max = Math.max(...counts.map(c => c.n), 1);
+  return counts.map(c => {
+    const w = Math.max(8, (c.n / max) * 100);
+    return `<div class="pbar" style="width:${w}%; background:${c.color}">${c.label} · ${fmtN(c.n)}</div>`;
+  }).join("");
+}
+
+function renderCompare(results) {
+  const metrics = [
+    { key: "totalHeadcount", label: "Total headcount", fmt: fmtN },
+    { key: "totalCost", label: "Annual cost", fmt: fmt$ },
+    { key: "netOutput", label: "Effective output", fmt: n => fmtN(n/1000) + "k h" },
+    { key: "costPerOutput", label: "Cost per output hr", fmt: n => "$" + n.toFixed(0) },
+    { key: "coordinationOverhead", label: "Coordination overhead", fmt: fmtPct },
+  ];
+  let html = "";
+  for (const m of metrics) {
+    const vals = {
+      traditional: results.traditional[m.key],
+      bestinclass: results.bestinclass[m.key],
+      claude:      results.claude[m.key],
+    };
+    const max = Math.max(...Object.values(vals));
+    html += `<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:14px 0 6px;">${m.label}</div>`;
+    html += `<div class="compare-bars">`;
+    for (const [k, tag] of [["traditional","t"],["bestinclass","b"],["claude","c"]]) {
+      const v = vals[k];
+      const w = (v / max) * 100;
+      const lbl = k === "traditional" ? "Traditional" : k === "bestinclass" ? "Best-in-class" : "Claude-augmented";
+      html += `<div class="compare-label">${lbl}</div>
+               <div class="bar-track"><div class="bar-fill ${tag}" style="width:${w}%">${m.fmt(v)}</div></div>`;
+    }
+    html += `</div>`;
+  }
+  return html;
+}
+
+function renderInsights(r) {
+  const t = r.traditional, b = r.bestinclass, c = r.claude;
+  const headcountDrop_b = ((1 - b.totalHeadcount/t.totalHeadcount) * 100).toFixed(0);
+  const headcountDrop_c = ((1 - c.totalHeadcount/t.totalHeadcount) * 100).toFixed(0);
+  const costDrop_b = ((1 - b.totalCost/t.totalCost) * 100).toFixed(0);
+  const costDrop_c = ((1 - c.totalCost/t.totalCost) * 100).toFixed(0);
+  const outputGain_b = ((b.netOutput/t.netOutput - 1) * 100).toFixed(0);
+  const outputGain_c = ((c.netOutput/t.netOutput - 1) * 100).toFixed(0);
+  const cpoTrad = t.costPerOutput, cpoBic = b.costPerOutput, cpoClaude = c.costPerOutput;
+  const efficiencyGain_b = (cpoTrad/cpoBic).toFixed(1);
+  const efficiencyGain_c = (cpoTrad/cpoClaude).toFixed(1);
+
+  // Role disappearance
+  const removedInBic = ROLES.filter(r2 => t.counts[r2.key] > 0 && b.counts[r2.key] === 0).map(r2 => r2.label);
+  const reducedInClaude = ROLES.filter(r2 =>
+    b.counts[r2.key] > 0 && c.counts[r2.key] > 0 && c.counts[r2.key] < b.counts[r2.key] * 0.7
+  ).map(r2 => r2.label);
+
+  return `
+    <li><b>Traditional → best-in-class:</b> headcount drops ~${headcountDrop_b}%, cost drops ~${costDrop_b}%, but output rises ~${outputGain_b}% — a <b>${efficiencyGain_b}× efficiency gain</b> from flattening hierarchy, removing dedicated QA/Scrum, and giving teams autonomy.</li>
+    <li><b>Best-in-class → Claude-augmented:</b> the structural saving compounds. Same target output ships with <b>~${headcountDrop_c}% fewer people than traditional</b> and <b>${efficiencyGain_c}× cheaper per output hour</b>.</li>
+    <li><b>Roles that vanish first</b> (in best-in-class): ${removedInBic.join(", ") || "—"}. Engineers absorb quality and process work directly.</li>
+    <li><b>Roles that shrink with Claude</b>: ${reducedInClaude.length ? reducedInClaude.join(", ") : "PM, TPM, designer, data analyst — the boilerplate of each gets automated"}. Headcount per role doesn't go to zero, but the leverage per person increases sharply.</li>
+    <li><b>Manager-to-IC ratio widens</b>: Traditional sits around 1:7, best-in-class 1:10, Claude-augmented 1:14 — managers can lead more ICs because each IC self-serves more (planning, drafting, review).</li>
+    <li><b>Coordination overhead</b> falls from ${fmtPct(t.coordinationOverhead)} of capacity (Traditional) to ${fmtPct(c.coordinationOverhead)} (Claude). This is the single biggest hidden lever — most enterprise tech orgs are losing half their capacity to status, handoffs, and rework.</li>
+    <li><b>What this means strategically:</b> at constant headcount, a Claude-augmented org delivers what previously required ~${(c.netOutput/t.netOutput).toFixed(1)}× the people. At constant output, the same work runs at ~${(c.totalCost/t.totalCost*100).toFixed(0)}% of the cost. The bottleneck shifts from <em>capacity</em> to <em>idea quality and product judgment</em>.</li>
+    <li><b>Org-design implications:</b> fewer middle managers, no Scrum layer, no separate QA org, smaller PM bench (each PM owns more surface area), engineers act closer to product owners. The pyramid flattens into a diamond.</li>
+  `;
+}
+
+function renderAssumptions() {
+  const wrap = document.getElementById("assumptions");
+  wrap.innerHTML = "";
+  for (const [k, a] of Object.entries(ARCHETYPES)) {
+    const col = document.createElement("div");
+    col.className = "assumption-col";
+    let html = `<h4 class="${a.tag}">${a.name}</h4>`;
+    const ratioRoles = [
+      ["em","Engineers per EM"], ["srmgr","Engineers per Sr Manager"],
+      ["dir","Engineers per Director"], ["vp","Engineers per VP"],
+      ["pm","Engineers per PM"], ["tpm","Engineers per TPM"],
+      ["designer","Engineers per Designer"], ["qa","Engineers per QA"],
+      ["scrum","Engineers per Scrum master"], ["sre","Engineers per SRE"],
+      ["data","Engineers per Data analyst"],
+    ];
+    for (const [rk, lbl] of ratioRoles) {
+      html += `<div class="arow"><div class="lbl">${lbl}</div>
+        <input type="number" min="0" step="1" data-arch="${k}" data-field="ratio" data-role="${rk}" value="${a.ratios[rk]}"></div>`;
+    }
+    html += `<div class="arow"><div class="lbl">Productive time %</div>
+      <input type="number" min="0" max="100" step="1" data-arch="${k}" data-field="productiveTime" value="${Math.round(a.productiveTime*100)}"></div>`;
+    html += `<div class="arow"><div class="lbl">Productivity factor ×</div>
+      <input type="number" min="0.1" max="10" step="0.1" data-arch="${k}" data-field="productivityFactor" value="${a.productivityFactor}"></div>`;
+    html += `<div class="arow"><div class="lbl">Process tax %</div>
+      <input type="number" min="0" max="100" step="1" data-arch="${k}" data-field="processTax" value="${Math.round(a.processTax*100)}"></div>`;
+    if (a.icScaling !== undefined) {
+      html += `<div class="arow"><div class="lbl">IC scaling ×</div>
+        <input type="number" min="0.1" max="2" step="0.05" data-arch="${k}" data-field="icScaling" value="${a.icScaling}"></div>`;
+    }
+    col.innerHTML = html;
+    wrap.appendChild(col);
+  }
+  wrap.querySelectorAll("input").forEach(el => el.addEventListener("input", e => {
+    const arch = ARCHETYPES[e.target.dataset.arch];
+    const field = e.target.dataset.field;
+    let v = +e.target.value;
+    if (field === "ratio") arch.ratios[e.target.dataset.role] = v;
+    else if (field === "productiveTime" || field === "processTax") arch[field] = v / 100;
+    else arch[field] = v;
+    render();
+  }));
+}
+
+// ============================================================
+// Wire up
+// ============================================================
+document.querySelectorAll(".controls input").forEach(el => el.addEventListener("input", render));
+render();
+</script>
+</body>
+</html>
