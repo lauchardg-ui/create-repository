@@ -1,20 +1,18 @@
 # Deployment Guide
 
 The app's default OAuth flow (`InstalledAppFlow.run_local_server`) is designed
-for a local desktop install. Hosting it on the web requires one of two changes:
+for a local desktop install. Hosting it on the web requires baking a long-lived
+refresh token into hosted secrets so the app authenticates as exactly one
+Gmail account (you). The easiest place to do that is **Streamlit Community
+Cloud's free tier** — covered below.
 
-1. **Single-user demo** — bake a long-lived refresh token into hosted secrets so
-   the app authenticates as exactly one Gmail account (you). Simplest path,
-   works on Streamlit Community Cloud's free tier.
-2. **Multi-user production** — replace the desktop flow with a web OAuth flow,
-   register an authorised redirect URI, and persist per-user tokens server-side.
-   Bigger lift, covered later in this doc.
-
-Pick option 1 unless you actually need to serve other people.
+For a real multi-user product you'd need a different auth model entirely
+(web OAuth flow + session-keyed token store). That's a separate refactor,
+not covered here.
 
 ---
 
-## Option 1 — Streamlit Community Cloud (single-user)
+## Streamlit Community Cloud (single-user)
 
 ### One-off setup
 
@@ -81,77 +79,13 @@ expires, regenerate locally with `make run` and replace the secret.
 
 ---
 
-## Option 2 — Google Cloud Run (production / multi-user)
-
-For a real multi-user product. You'll need:
-
-- A **Google Cloud project** with the Gmail API enabled.
-- A **Web** OAuth client (not Desktop) in *APIs & Services → Credentials*, with
-  an authorised redirect URI like `https://<your-host>/oauth/callback`.
-- A **session store** (Redis, Firestore) — Cloud Run instances are stateless
-  and per-request, so OAuth tokens can't live in local files.
-- Code changes in `gmail_client.load_credentials()` to use
-  `google_auth_oauthlib.flow.Flow` (web flow) instead of `InstalledAppFlow`, and
-  to read/write tokens through your session store.
-
-This is a meaningful refactor — happy to do it as a follow-up if you want to
-ship a public product. For now this section documents the deploy mechanics; the
-auth refactor is out of scope of the initial app.
-
-### Build and deploy the container
-
-Once the OAuth refactor is in:
-
-```bash
-# Build locally (or use Cloud Build)
-gcloud builds submit --tag gcr.io/$PROJECT/email-theme-analyzer
-
-# Deploy to Cloud Run (private by default)
-gcloud run deploy email-theme-analyzer \
-  --image gcr.io/$PROJECT/email-theme-analyzer \
-  --region europe-west1 \
-  --no-allow-unauthenticated \
-  --memory 1Gi \
-  --set-env-vars STREAMLIT_SERVER_PORT=8080 \
-  --set-secrets OAUTH_CLIENT_SECRET=oauth-client:latest
-```
-
-Mount your Gmail OAuth client JSON via Secret Manager — never bake it into the
-image.
-
-The repo ships a `Dockerfile` ready for this — it installs deps, runs as a
-non-root user, and starts Streamlit on `$PORT` (Cloud Run's convention).
-
-### Cost expectations
-
-Cloud Run free tier covers ~2M requests/month with the default min-instance=0
-(scale to zero). Realistically you'll pay for the LDA fit + Gmail roundtrips,
-not the request count. Expect <$5/month for personal use.
-
----
-
-## Where to host: quick comparison
-
-| Aspect | Streamlit Cloud | Cloud Run |
-|---|---|---|
-| Cost | Free | ~$0–5/mo personal |
-| Setup time | 15 min | 1–2 hours + OAuth refactor |
-| Multi-user | No | Yes |
-| Custom domain | No (free tier) | Yes |
-| Auto-sleep | Yes (cold start ~10s) | Yes (scale-to-zero) |
-| Best for | Personal use, demo | Public product |
-
----
-
-## Security checklist (both options)
+## Security checklist
 
 - [ ] `credentials.json` and `token.json` are **git-ignored** — they already
-      are in this repo, verify with `git status` before pushing
+      are in this repo; verify with `git status` before pushing
 - [ ] Use the **read-only Gmail scope** (`gmail.readonly`) — already enforced
       in `gmail_client.py`
 - [ ] Rotate the OAuth client secret if it ever leaks (Google Cloud Console →
       Credentials → reset)
-- [ ] For Cloud Run, set `--no-allow-unauthenticated` unless you've added your
-      own auth layer in front of Streamlit
 - [ ] Keep the `pip-audit` and `bandit` CI gates green — they already block
       merges on this repo

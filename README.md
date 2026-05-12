@@ -84,10 +84,9 @@ weekly via `.github/workflows/codeql.yml`.
 
 ## Deployment
 
-The default flow is local-only (per-user desktop OAuth). For Streamlit
-Community Cloud (single-user demo) or Google Cloud Run (multi-user), see
-[`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md). The repo ships a `Dockerfile`
-ready for Cloud Run.
+The default flow is local-only (per-user desktop OAuth). For a hosted
+single-user demo on Streamlit Community Cloud, see
+[`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md).
 
 ## License
 
