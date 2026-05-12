@@ -129,11 +129,13 @@ def main() -> int:
     try:
         for name, fig in charts.items():
             pio.write_image(fig, out_dir / name, width=1100, height=600, scale=2)
-    except Exception as exc:  # noqa: BLE001 — kaleido may not be installed
+    except Exception as exc:
         print(f"Skipping PNG export (kaleido unavailable): {exc}", file=sys.stderr)
 
     # Word cloud
-    (out_dir / "wordcloud.png").write_bytes(wordcloud_png(analysis.theme_result, width=1100, height=600))
+    (out_dir / "wordcloud.png").write_bytes(
+        wordcloud_png(analysis.theme_result, width=1100, height=600)
+    )
 
     # JSON summary on stdout
     summary = {

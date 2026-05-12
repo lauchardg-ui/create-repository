@@ -22,7 +22,7 @@ from email_analyzer.visualizations import (
 )
 
 sys.path.insert(0, str(Path(__file__).parent))
-from real_corpus import CORPUS  # noqa: E402
+from real_corpus import CORPUS
 
 
 def _parse_dt(s: str) -> datetime | None:
@@ -51,9 +51,7 @@ def main() -> int:
         for i, (date, sender, subject, snippet) in enumerate(CORPUS)
     ]
 
-    analysis = analyse(
-        messages, themes_path="config/themes.yaml", n_topics=8
-    )
+    analysis = analyse(messages, themes_path="config/themes.yaml", n_topics=8)
 
     out_dir = Path("data/out")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -77,7 +75,7 @@ def main() -> int:
         for name, fig in charts.items():
             pio.write_image(fig, out_dir / name, width=1100, height=600, scale=2)
         png_ok = True
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"PNG export skipped (kaleido unavailable): {exc}", file=sys.stderr)
         png_ok = False
 
