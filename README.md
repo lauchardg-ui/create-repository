@@ -82,6 +82,13 @@ weekly via `.github/workflows/codeql.yml`.
   — no test ever touches the network.
 - `bandit` and `pip-audit` run on every push.
 
+## Deployment
+
+The default flow is local-only (per-user desktop OAuth). For Streamlit
+Community Cloud (single-user demo) or Google Cloud Run (multi-user), see
+[`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md). The repo ships a `Dockerfile`
+ready for Cloud Run.
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).

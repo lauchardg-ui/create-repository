@@ -1,0 +1,37 @@
+# Local artefacts that shouldn't bloat the image.
+.git
+.github
+.venv*
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+coverage.xml
+htmlcov
+
+# Tests and local docs aren't needed at runtime.
+tests
+scripts
+docs
+data
+
+# Secrets — defence in depth, .gitignore already excludes these.
+credentials.json
+token.json
+client_secret*.json
+.env
+.env.*
+.streamlit/secrets.toml
+
+# Build / dist artefacts
+build
+dist
+*.egg-info
+
+# IDE
+.vscode
+.idea
+.DS_Store
