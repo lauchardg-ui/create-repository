@@ -1,0 +1,148 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "email-theme-analyzer"
+version = "0.1.0"
+description = "Analyse thematic frequency in Gmail messages with interactive Plotly visualisations."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Email Theme Analyzer Contributors" }]
+keywords = ["gmail", "nlp", "topic-modeling", "streamlit", "plotly"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Communications :: Email",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+dependencies = [
+    "streamlit>=1.32",
+    "plotly>=5.20",
+    "pandas>=2.1",
+    "numpy>=1.26",
+    "scikit-learn>=1.4",
+    "google-api-python-client>=2.120",
+    "google-auth-httplib2>=0.2",
+    "google-auth-oauthlib>=1.2",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.1",
+    "PyYAML>=6.0",
+    "wordcloud>=1.9",
+    "matplotlib>=3.8",
+    "python-dateutil>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "pytest-mock>=3.12",
+    "ruff>=0.4",
+    "bandit[toml]>=1.7",
+    "pip-audit>=2.7",
+    "mypy>=1.9",
+    "types-PyYAML",
+    "types-python-dateutil",
+]
+
+[project.scripts]
+email-theme-analyzer = "email_analyzer.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/lauchardg-ui/create-repository"
+Issues = "https://github.com/lauchardg-ui/create-repository/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+email_analyzer = ["py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=email_analyzer",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+    "--cov-fail-under=85",
+]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:google.*",
+    "ignore::DeprecationWarning:httplib2.*",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["email_analyzer"]
+omit = [
+    "src/email_analyzer/app.py",
+    "src/email_analyzer/cli.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+extend-exclude = ["build", "dist"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "B",        # bugbear
+    "UP",       # pyupgrade
+    "SIM",      # simplify
+    "C4",       # comprehensions
+    "RUF",      # ruff-specific
+    "S",        # bandit-style security
+    "PL",       # pylint
+    "PTH",      # pathlib
+    "ARG",      # unused arguments
+]
+ignore = [
+    "PLR0913",  # too many arguments — acceptable for config-driven funcs
+    "PLR2004",  # magic values — acceptable in tests
+    "S101",     # asserts — acceptable in tests
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "PLR2004", "ARG"]
+"src/email_analyzer/app.py" = ["S104"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.bandit]
+exclude_dirs = ["tests", "build", "dist", ".venv"]
+skips = ["B101"]  # asserts in tests
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+files = ["src/email_analyzer"]
