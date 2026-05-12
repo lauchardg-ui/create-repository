@@ -1,0 +1,106 @@
+# Default theme dictionary. Each theme is a list of case-insensitive keywords or
+# phrases. Phrase matches are whole-word; substring matches happen on tokens.
+# Edit freely — the app reloads this on each run.
+
+themes:
+  Work:
+    - meeting
+    - deadline
+    - project
+    - sprint
+    - standup
+    - kickoff
+    - milestone
+    - roadmap
+    - okr
+    - stakeholder
+    - review
+    - retro
+    - retrospective
+
+  Finance:
+    - invoice
+    - payment
+    - receipt
+    - refund
+    - billing
+    - subscription
+    - renewal
+    - tax
+    - statement
+    - transaction
+    - payroll
+    - salary
+    - expense
+    - reimbursement
+
+  Travel:
+    - flight
+    - hotel
+    - booking
+    - reservation
+    - itinerary
+    - boarding pass
+    - check-in
+    - departure
+    - arrival
+    - rental
+    - airbnb
+
+  Newsletters:
+    - newsletter
+    - digest
+    - weekly
+    - unsubscribe
+    - subscribe
+    - issue
+    - bulletin
+
+  Shopping:
+    - order
+    - shipped
+    - delivery
+    - tracking
+    - cart
+    - purchase
+    - discount
+    - promo
+    - sale
+    - coupon
+
+  Personal:
+    - family
+    - friend
+    - birthday
+    - wedding
+    - holiday
+    - dinner
+    - lunch
+    - weekend
+    - vacation
+
+  Security:
+    - password
+    - verification
+    - two-factor
+    - 2fa
+    - otp
+    - sign-in
+    - login
+    - security alert
+    - suspicious
+    - breach
+    - reset
+
+  Recruiting:
+    - recruiter
+    - interview
+    - offer
+    - hiring
+    - candidate
+    - role
+    - position
+    - opportunity
+    - linkedin
+    - resume
+    - cv
