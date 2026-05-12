@@ -81,6 +81,8 @@ filterwarnings = [
     "ignore::DeprecationWarning:google.*",
     "ignore::DeprecationWarning:httplib2.*",
     "ignore::PendingDeprecationWarning",
+    # google.api_core emits a FutureWarning on Python 3.10 about its upcoming EOL.
+    "ignore::FutureWarning:google.api_core",
 ]
 
 [tool.coverage.run]

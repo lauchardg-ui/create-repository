@@ -33,7 +33,8 @@ DEFAULT_TOKEN_PATH = Path("token.json")
 class GmailService(Protocol):
     """Subset of the Gmail API resource we depend on."""
 
-    def users(self) -> Any: ...  # pragma: no cover - structural
+    def users(self) -> Any:
+        """Return the users resource (Gmail API ``users()``)."""
 
 
 @dataclass(frozen=True)
